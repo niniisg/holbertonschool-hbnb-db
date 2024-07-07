@@ -4,14 +4,20 @@ City related functionality
 
 from src.models.base import Base
 from src.models.country import Country
+from sqlalchemy import ForeignKey
+from . import db
 
 
-class City(Base):
+
+
+class City(db.Model):
     """City representation"""
+    __tablename__ = 'cities'
 
-    name: str
-    country_code: str
-
+    name = db.Column(db.String(128), nullable=False)
+    country_code = db.Column(db.String(3), db.ForeignKey("countries.code"), nullable=False)
+    place = db.relationship("Place", back_populates='city')
+    country = db.relationship('Country', back_populates='cities')
     def __init__(self, name: str, country_code: str, **kw) -> None:
         """Dummy init"""
         super().__init__(**kw)
@@ -31,6 +37,7 @@ class City(Base):
             "country_code": self.country_code,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
+    
         }
 
     @staticmethod

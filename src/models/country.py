@@ -1,9 +1,13 @@
+import os
+from . import db
+
+
 """
 Country related functionality
 """
 
 
-class Country:
+class Country(db.Model):
     """
     Country representation
 
@@ -11,10 +15,12 @@ class Country:
 
     This class is used to get and list countries
     """
+    __tablename__ = 'countries'
 
-    name: str
-    code: str
-    cities: list
+    name = db.Column("name", db.String(128), nullable=False)
+    code = db.Column("code", db.String(2), primary_key=True, nullable=False)
+    cities = db.relationship("City", back_populates='country')
+
 
     def __init__(self, name: str, code: str, **kw) -> None:
         """Dummy init"""
@@ -37,9 +43,12 @@ class Country:
     def get_all() -> list["Country"]:
         """Get all countries"""
         from src.persistence import repo
-
-        countries: list["Country"] = repo.get_all("country")
-
+        
+        if os.getenv("REPOSITORY") == "file":
+            countries: list["Country"] = repo.get_all("country")
+        else:
+            countries: list["Country"] = repo.get_all(Country)
+            
         return countries
 
     @staticmethod
